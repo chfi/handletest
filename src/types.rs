@@ -10,6 +10,8 @@ use handlegraph::{
 
 use handlegraph::packedgraph::PackedGraph;
 
+use anyhow::Result;
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeRow {
     node_id: u64,
@@ -39,6 +41,66 @@ pub struct TestRecords {
     node_rows: Vec<NodeRow>,
     path_rows: Vec<PathRow>,
     occur_rows: Vec<OccurrenceRow>,
+}
+
+impl TestRecords {
+    pub fn serialize(&self) -> Result<String> {
+        use std::fmt::Write;
+
+        let mut res = String::new();
+
+        writeln!(
+            res,
+            "{}\t{}\t{}",
+            self.node_row_count, self.path_row_count, self.occur_row_count
+        )?;
+
+        for node_row in self.node_rows.iter() {
+            let seq_str = std::str::from_utf8(&node_row.seq)?;
+
+            write!(res, "{}\t{}\t", node_row.node_id, seq_str)?;
+
+            for (i, handle) in node_row.left_edges.iter().enumerate() {
+                if i != 0 {
+                    write!(res, ",")?;
+                }
+                write!(res, "{}", handle)?;
+            }
+
+            write!(res, "\t")?;
+
+            for (i, handle) in node_row.right_edges.iter().enumerate() {
+                if i != 0 {
+                    write!(res, ",")?;
+                }
+                write!(res, "{}", handle)?;
+            }
+
+            writeln!(res)?;
+        }
+
+        for path_row in self.path_rows.iter() {
+            write!(res, "{}\t", path_row.path_name)?;
+
+            for (i, handle) in path_row.handles.iter().enumerate() {
+                if i != 0 {
+                    write!(res, ",")?;
+                }
+                write!(res, "{}", handle)?;
+            }
+            writeln!(res)?;
+        }
+
+        for occur_row in self.occur_rows.iter() {
+            writeln!(
+                res,
+                "{}\t{}\t{}",
+                occur_row.node_id, occur_row.path_name, occur_row.step
+            )?;
+        }
+
+        Ok(res)
+    }
 }
 
 pub fn get_node_rows(graph: &PackedGraph) -> Vec<NodeRow> {
@@ -128,4 +190,19 @@ pub fn get_occur_rows(graph: &PackedGraph) -> Vec<OccurrenceRow> {
     rows.sort();
 
     rows
+}
+
+pub fn get_graph_rows(graph: &PackedGraph) -> TestRecords {
+    let node_rows = get_node_rows(graph);
+    let path_rows = get_path_rows(graph);
+    let occur_rows = get_occur_rows(graph);
+
+    TestRecords {
+        node_row_count: node_rows.len(),
+        path_row_count: path_rows.len(),
+        occur_row_count: occur_rows.len(),
+        node_rows,
+        path_rows,
+        occur_rows,
+    }
 }
