@@ -101,6 +101,98 @@ impl TestRecords {
 
         Ok(res)
     }
+
+    pub fn deserialize(ser: &str) -> Option<Self> {
+        let mut lines = ser.lines();
+
+        let header = lines.next()?;
+        let mut header = header.split("\t");
+
+        let nodes = header.next()?;
+        let node_row_count = nodes.parse::<usize>().ok()?;
+
+        let paths = header.next()?;
+        let path_row_count = paths.parse::<usize>().ok()?;
+
+        let occurs = header.next()?;
+        let occur_row_count = occurs.parse::<usize>().ok()?;
+
+        let mut node_rows: Vec<NodeRow> = Vec::with_capacity(node_row_count);
+
+        for _ in 0..node_row_count {
+            let line = lines.next()?;
+            let mut fields = line.split("\t");
+
+            let node_id = fields.next().and_then(|f| f.parse::<u64>().ok())?;
+            let seq = fields.next()?.bytes().collect::<Vec<_>>();
+
+            let left_edges = fields.next()?;
+            let left_edges = left_edges
+                .split(",")
+                .filter_map(|h| h.parse::<u64>().ok())
+                .collect::<Vec<_>>();
+
+            let right_edges = fields.next()?;
+            let right_edges = right_edges
+                .split(",")
+                .filter_map(|h| h.parse::<u64>().ok())
+                .collect::<Vec<_>>();
+
+            node_rows.push(NodeRow {
+                node_id,
+                seq,
+                left_edges,
+                right_edges,
+            });
+        }
+
+        let mut path_rows: Vec<PathRow> = Vec::with_capacity(path_row_count);
+
+        for _ in 0..path_row_count {
+            let line = lines.next()?;
+            let mut fields = line.split("\t");
+
+            let path_name = fields.next()?.to_string();
+
+            let handles = fields.next()?;
+            let handles = handles
+                .split(",")
+                .filter_map(|h| h.parse::<u64>().ok())
+                .collect::<Vec<_>>();
+
+            path_rows.push(PathRow { path_name, handles });
+        }
+
+        let mut occur_rows: Vec<OccurrenceRow> = Vec::with_capacity(occur_row_count);
+
+        for _ in 0..occur_row_count {
+            let line = lines.next()?;
+            let mut fields = line.split("\t");
+
+            let node_id = fields.next().and_then(|f| f.parse::<u64>().ok())?;
+            let path_name = fields.next()?.to_string();
+            let step = fields.next().and_then(|f| f.parse::<u64>().ok())?;
+
+            occur_rows.push(OccurrenceRow {
+                node_id,
+                path_name,
+                step,
+            });
+        }
+
+        assert_eq!(node_row_count, node_rows.len());
+        assert_eq!(path_row_count, path_rows.len());
+        assert_eq!(occur_row_count, occur_rows.len());
+
+        Some(TestRecords {
+            node_row_count,
+            path_row_count,
+            occur_row_count,
+            node_rows,
+            path_rows,
+            occur_rows,
+        })
+    }
 }
 
 pub fn get_node_rows(graph: &PackedGraph) -> Vec<NodeRow> {
