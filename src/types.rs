@@ -14,33 +14,33 @@ use anyhow::Result;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeRow {
-    node_id: u64,
-    seq: Vec<u8>,
-    left_edges: Vec<u64>,
-    right_edges: Vec<u64>,
+    pub node_id: u64,
+    pub seq: Vec<u8>,
+    pub left_edges: Vec<u64>,
+    pub right_edges: Vec<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PathRow {
-    path_name: String,
-    handles: Vec<u64>,
+    pub path_name: String,
+    pub handles: Vec<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct OccurrenceRow {
-    node_id: u64,
-    path_name: String,
-    step: u64,
+    pub node_id: u64,
+    pub path_name: String,
+    pub step: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TestRecords {
-    node_row_count: usize,
-    path_row_count: usize,
-    occur_row_count: usize,
-    node_rows: Vec<NodeRow>,
-    path_rows: Vec<PathRow>,
-    occur_rows: Vec<OccurrenceRow>,
+    pub node_row_count: usize,
+    pub path_row_count: usize,
+    pub occur_row_count: usize,
+    pub node_rows: Vec<NodeRow>,
+    pub path_rows: Vec<PathRow>,
+    pub occur_rows: Vec<OccurrenceRow>,
 }
 
 impl TestRecords {
