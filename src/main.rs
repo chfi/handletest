@@ -1,19 +1,12 @@
 use handletest::types::*;
 
-use bstr::io::*;
-use std::io::{BufReader, Read};
+use std::io::Read;
 
-use gfa::{
-    gfa::{SegmentId, GFA},
-    optfields::OptFields,
-    parser::GFAParser,
-};
+use gfa::{gfa::GFA, parser::GFAParser};
 
 use handlegraph::{
-    handle::{Direction, Edge, Handle, NodeId},
-    handlegraph::*,
+    handle::{Edge, Handle},
     mutablehandlegraph::*,
-    packed::*,
     pathhandlegraph::*,
 };
 
@@ -94,7 +87,7 @@ fn main() {
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
 
-            let test_records = TestRecords::deserialize(&contents);
+            let test_records = TestRecords::deserialize(&contents).unwrap();
 
             println!("nodes  {}", test_records.node_row_count);
             println!("paths  {}", test_records.path_row_count);

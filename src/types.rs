@@ -1,12 +1,4 @@
-use gfa::{gfa::Line, parser::GFAParser};
-
-use handlegraph::{
-    handle::{Direction, Edge, Handle, NodeId},
-    handlegraph::*,
-    mutablehandlegraph::*,
-    packed::*,
-    pathhandlegraph::*,
-};
+use handlegraph::{handle::Direction, handlegraph::*, packed::*, pathhandlegraph::*};
 
 use handlegraph::packedgraph::PackedGraph;
 
